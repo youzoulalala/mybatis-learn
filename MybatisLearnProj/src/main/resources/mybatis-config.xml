@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--约束，用于验证xml的正确性-->
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!--核心 全局配置文件-->
+
+<!-- 下面的标签顺序需要一致，元素类型为 "configuration" 的内容必须匹配 "(properties?,settings?,typeAliases?,typeHandlers?,objectFactory?,objectWrapperFactory?,plugins?,environments?,databaseIdProvider?,mappers?)"
+    configuration 配置
+        properties 属性
+        settings 设置
+        typeAliases 类型命名
+        typeHandlers 类型处理器
+        objectFactory 对象工厂
+        plugins 插件
+        environments 环境
+            environment 环境变量
+                transactionManager 事务管理器
+                dataSource 数据源
+        databaseIdProvider 数据库厂商标识
+        mappers 映射器
+-->
+
+<configuration>
+    <!--可设置属性的位置如下：
+     1 propertie 标签中
+     2 properties， 通过resource url 指定需要加载的外部配置文件
+     3 SqlSessionFactory 创建方法参数中传入参数
+     从上到下，优先级增高覆盖已读取的同名属性。-->
+    <properties resource="dbconfig.properties">
+        <property name="org.apache.ibatis.parsing.PropertyParser.enable-default-value" value="true"/> <!-- 启用默认值特性 -->
+        <property name="org.apache.ibatis.parsing.PropertyParser.default-value-separator" value="?:"/> <!-- 修改默认值的分隔符 -->
+    </properties>
+
+    <!-- 运行时行为设置
+   mybatis 提供了多种功能的设置，每个设置都有各自的含义，取值范围，默认值
+   更多设置：https://mybatis.org/mybatis-3/zh/configuration.html#settings-->
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <!--别名不区分大小写-->
+    <!--可以为类或者包指定别名，默认使用 Bean 的首字母小写的非限定类名来作为它的别名    -->
+    <!--mybatis 已经内置了部门别名，不可再使用
+        别名链接：https://gitee.com/jallenkwong/LearnMyBatis/blob/master/src/main/resources/c02/mybatis-config3.xml-->
+    <typeAliases>
+        <!--        <typeAlias type="wyd.model.Employee" alias="emp"></typeAlias>-->
+        <package name="wyd.model"/>
+    </typeAliases>
+
+
+    <!-- 用于Java类型和数据库类型之间的转化-->
+    <!-- 自定义类型处理器   -->
+    <typeHandlers></typeHandlers>
+
+    <!--  插件是MyBatis提供的一个非常强大的机制，我们可以通过插件来修改MyBatis的一些核心行为。
+            插件通过动态代理机制，可以介入四大对象的任何一个方法的执行。  -->
+    <!--    了解mybatis运行原理才能更好开发插件-->
+    <!--    Executor (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)
+            ParameterHandler (getParameterObject, setParameters)
+            ResultSetHandler (handleResultSets, handleOutputParameters)
+            StatementHandler (prepare, parameterize, batch, update, query)-->
+<!--    <plugins></plugins>-->
+
+
+    <!--指定事务,数据源-->
+    <!--实际开发中我们使用Spring管理数据源，并进行事务控制的配置来覆盖上述配置。-->
+    <!--default 用来指定当前使用的环境<environment>-->
+    <environments default="dev">
+        <environment id="dev">
+            <!-- 事务管理:JDBC | MANAGED | 自定义-->
+            <transactionManager type="JDBC"/>
+            <!--数据源:UNPOOLED | POOLED | JNDI | 自定义-->
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+<!--                jdbc.username:system system 为默认值，需要通过配置开启这一特性-->
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+        <environment id="prod">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+<!--                此外可以配置连接池的相关属性-->
+                <property name="poolMaximumActiveConnections " value="10"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--    多数据库支持-->
+    <!--    如果没有配置databaseIdProvider标签，那么databaseId=null
+            databaseIdProvider 的 DB_VENDOR 实现会将 databaseId 设置为数据库产品名与属性中的名称第一个相匹配的值，如果没有匹配的属性，将会设置为 “null”
+            MyBatis 会加载不带 databaseId 属性和带有匹配当前数据库 databaseId 属性的所有语句。如果同时找到带有 databaseId 和不带 databaseId 的相同语句， 则后者会被舍弃
+    -->
+    <!--    MyBatis 可以根据不同的数据库厂商执行不同的语句-->
+    <!--    DB_VENDOR 使用MyBatis提供的VendorDatabaseIdProvider解析数据库厂商标识。也可以实现DatabaseIdProvider接口来自定义-->
+    <databaseIdProvider type="DB_VENDOR">
+        <!--        数据库厂商标识, 别名-->
+        <property name="SQL Server" value="sqlserver"/>
+        <property name="DB2" value="db2"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="MySQL" value="mysql"/>
+    </databaseIdProvider>
+
+    <!-- 将我们写好的sql映射文件（EmployeeMapper.xml）一定要注册到全局配置文件（mybatis-config.xml）中 -->
+    <!-- 使用相对于类路径的资源引用 -->
+    <!-- 使用完全限定资源定位符（URL） -->
+    <mappers>
+        <mapper resource="c01/EmployeeMapper.xml"/>
+<!--        <mapper url="file:///C:/Users/62927/Desktop/MybatisLearm/src/main/resources/c01/EmployeeMapper.xml"></mapper>-->
+<!--        要求接口与xml映射文件在同一包下-->
+<!--        <mapper class="wyd.mapper.EmployeeMapper"></mapper>-->
+<!--        <package name="wyd.mapper"/>-->
+    </mappers>
+</configuration>
+
