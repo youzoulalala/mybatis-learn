@@ -10,15 +10,74 @@
         resultType：返回值类型
         #{id}：从传递过来的参数中取出id值
      -->
+    <!-- ==========oracle版本的sql=========
+     <select id="getEmpById" resultType="EMP" databaseId="oracle">
+         select id, last_name, email, gender
+         from employee
+         where id = #{id}
+     </select>-->
     <select id="getEmpById" resultType="EMP" databaseId="mysql">
         select id, last_name, email, gender
         from employee
         where id = #{id}
     </select>
 
-<!--    <select id="getEmpById" resultType="EMP" databaseId="oracle">-->
-<!--        select id, last_name, email, gender-->
-<!--        from employee-->
-<!--        where id = #{id}-->
-<!--    </select>-->
+    <update id="updateEmp">
+    </update>
+
+    <!--=======获取自增主键值==========
+    useGeneratedKeys="true" keyProperty="id"
+    keySelect 标签-->
+    <insert id="addEmp" >
+        INSERT INTO employee  (id, last_name, email, gender)
+        VALUES(UUID(), #{lastName},#{email},#{gender})
+    </insert>
+
+    <delete id="deleteEmp">
+    </delete>
+
+    <!--多个参数会被封装为一个map
+        key: param1, param2
+        value: 参数值1, 参数值2-->
+<!-- 多个参数而未起别名则报错：
+  org.apache.ibatis.binding.BindingException: Parameter 'id' not found. Available parameters are [0, 1, param1, param2]
+  -->
+    <select id="getEmpByIdAndLastName" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+        from employee
+<!--        where id = #{0} and last_name = #{1}-->
+<!--        where id = #{param1} and last_name = #{param2}-->
+        where id = #{id} and last_name = #{lastName}
+    </select>
+
+    <select id="getEmpByMap" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+        from employee
+        where id = #{id} and last_name = #{lastName}
+    </select>
+
+    <select id="getEmpByDTO" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+        from employee
+        limit (#{page} - 1) * #{size}, #{size}
+    </select>
+
+    <select id="getEmpByList" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+<!--            $ 直接拼接在SQL语句中（分表等特殊情况使用）
+                # 预编译的方式，防止SQL注入（查询条件使用）
+                eg: select * from ${year}_salary where name = #{empName}
+-->
+<!-- #{} 的进一步用法，javeType, jdbcType, mode(存储过程), numericScale
+                        resultMap, typeHandler, jdbcTypeName, expression（保留字段）
+
+-->
+        from ${tableName}
+        where id = #{employeeList[0].id}
+    </select>
+
+    <select id="getEmpTotal" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+        from employee
+    </select>
 </mapper>

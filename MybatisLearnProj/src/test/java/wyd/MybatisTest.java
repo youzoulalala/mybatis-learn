@@ -11,6 +11,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.Assert;
 import org.junit.Test;
+import wyd.dto.PageInfoDTO;
 import wyd.mapper.EmployeeMapper;
 import wyd.model.Employee;
 
@@ -18,7 +19,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.Properties;
+import java.util.*;
 
 public class MybatisTest {
     //Mybatis https://blog.csdn.net/u011863024/article/details/107854866
@@ -50,8 +51,10 @@ public class MybatisTest {
         final SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(resourceAsStream);//应用作用域(单例)
         return sqlSessionFactory;
     }
+
     /**
      * 通过java代码配置
+     *
      * @throws IOException
      */
 
@@ -79,7 +82,7 @@ public class MybatisTest {
         //"jdbcConnection.properties"
         String mybatisConf = "jdbcConnection.properties";
         final SqlSessionFactory sqlSessionFactory = getSqlSessionFactoryByJava(mybatisConf);
-        try( SqlSession sqlSession = sqlSessionFactory.openSession()) {//非线程安全,每次使用时获取（请求或方法作用域）（每次收到 HTTP 请求，就可以打开一个 SqlSession，返回一个响应后，就关闭它）
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {//非线程安全,每次使用时获取（请求或方法作用域）（每次收到 HTTP 请求，就可以打开一个 SqlSession，返回一个响应后，就关闭它）
             final EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);//方法作用域
             System.out.println(mapper);
             final Employee e = mapper.getEmpById(1);
@@ -102,7 +105,7 @@ public class MybatisTest {
         String mybatisConfURL = "mybatis-config.xml";
         final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConfURL);
         // 2、获取sqlSession对象
-        try ( SqlSession sqlSession = sqlSessionFactory.openSession()){//每次使用时获取
+        try (SqlSession sqlSession = sqlSessionFactory.openSession(true)) {//每次使用时获取,true 表示自动提交
             // 3、获取接口的实现类对象(代理)
             EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);//获取代理对象
             Employee e = employeeMapper.getEmpById(1);
@@ -119,5 +122,84 @@ public class MybatisTest {
         float m = b.setScale(3, BigDecimal.ROUND_HALF_UP).floatValue();
         System.out.println(price);
         System.out.println(m);
+    }
+
+    @Test
+    public void testAdd() throws IOException {
+        String mybatisConfURL = "mybatis-config.xml";
+        final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConfURL);
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);//获取代理对象
+            Employee e = new Employee(null, "郭德纲", "gdg@123.com", "男");
+            boolean res = employeeMapper.addEmp(e);
+            sqlSession.commit();
+            System.out.println(e);
+        }
+    }
+
+    @Test
+    public void testParam() throws IOException {
+        String mybatisConfURL = "mybatis-config.xml";
+        final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConfURL);
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);//获取代理对象
+            Employee e = employeeMapper.getEmpByIdAndLastName("1", "Leborn James");
+            sqlSession.commit();
+            System.out.println(e);
+        }
+    }
+
+    @Test
+    public void testParamMap() throws IOException {
+        String mybatisConfURL = "mybatis-config.xml";
+        final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConfURL);
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);//获取代理对象
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", "1");
+            map.put("lastName", "Leborn James");
+            Employee e = employeeMapper.getEmpByMap(map);
+            sqlSession.commit();
+            System.out.println(e);
+        }
+    }
+
+    @Test
+    public void testParamDTO() throws IOException {
+        String mybatisConfURL = "mybatis-config.xml";
+        final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConfURL);
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);//获取代理对象
+            Employee e = employeeMapper.getEmpByDTO(new PageInfoDTO(2,3));
+            sqlSession.commit();
+            System.out.println(e);
+        }
+    }
+
+    @Test
+    public void testParamList() throws IOException {
+        String mybatisConfURL = "mybatis-config.xml";
+        final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConfURL);
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);//获取代理对象
+            List<Employee> employeeList = new ArrayList<>();
+            employeeList.add(new Employee("1", null, null, null));
+            employeeList.add(new Employee("2", null, null, null));
+            Employee e = employeeMapper.getEmpByList(employeeList, "employee");
+            sqlSession.commit();
+            System.out.println(e);
+        }
+    }
+
+    @Test
+    public void testReturnSet() throws IOException {
+        String mybatisConfURL = "mybatis-config.xml";
+        final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConfURL);
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);//获取代理对象
+            Set<Employee> e = employeeMapper.getEmpTotal();
+            sqlSession.commit();
+            System.out.println(e);
+        }
     }
 }

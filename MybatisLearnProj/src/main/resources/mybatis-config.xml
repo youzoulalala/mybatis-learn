@@ -37,6 +37,13 @@
    更多设置：https://mybatis.org/mybatis-3/zh/configuration.html#settings-->
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="jdbcTypeForNull" value="NULL"/>
+<!--
+    即使默认，仍然指定
+-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <setting name="cacheEnabled" value="true"/>
     </settings>
 
     <!--别名不区分大小写-->

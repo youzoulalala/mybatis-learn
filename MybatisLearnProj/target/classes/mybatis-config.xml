@@ -23,7 +23,7 @@
 
 <configuration>
     <!--可设置属性的位置如下：
-     1 propertie 标签中中
+     1 propertie 标签中
      2 properties， 通过resource url 指定需要加载的外部配置文件
      3 SqlSessionFactory 创建方法参数中传入参数
      从上到下，优先级增高覆盖已读取的同名属性。-->
@@ -49,8 +49,8 @@
     </typeAliases>
 
 
-    <!--    MyBatis3.4以前的版本需要我们手动注册这些处理器，以后的版本都是自动注册的
-            用于日期类型的处理-->
+    <!-- 用于Java类型和数据库类型之间的转化-->
+    <!-- 自定义类型处理器   -->
     <typeHandlers></typeHandlers>
 
     <!--  插件是MyBatis提供的一个非常强大的机制，我们可以通过插件来修改MyBatis的一些核心行为。
@@ -60,6 +60,7 @@
             ParameterHandler (getParameterObject, setParameters)
             ResultSetHandler (handleResultSets, handleOutputParameters)
             StatementHandler (prepare, parameterize, batch, update, query)-->
+<!--    <plugins></plugins>-->
 
 
     <!--指定事务,数据源-->
@@ -94,9 +95,8 @@
     <!--    多数据库支持-->
     <!--    如果没有配置databaseIdProvider标签，那么databaseId=null
             databaseIdProvider 的 DB_VENDOR 实现会将 databaseId 设置为数据库产品名与属性中的名称第一个相匹配的值，如果没有匹配的属性，将会设置为 “null”
-
-            MyBatis 会加载不带 databaseId 属性和带有匹配当前数据库 databaseId 属性的所有语句。如果同时找到带有 databaseId 和不带 databaseId 的相同语句， 则后者会被舍弃-->
-
+            MyBatis 会加载不带 databaseId 属性和带有匹配当前数据库 databaseId 属性的所有语句。如果同时找到带有 databaseId 和不带 databaseId 的相同语句， 则后者会被舍弃
+    -->
     <!--    MyBatis 可以根据不同的数据库厂商执行不同的语句-->
     <!--    DB_VENDOR 使用MyBatis提供的VendorDatabaseIdProvider解析数据库厂商标识。也可以实现DatabaseIdProvider接口来自定义-->
     <databaseIdProvider type="DB_VENDOR">
