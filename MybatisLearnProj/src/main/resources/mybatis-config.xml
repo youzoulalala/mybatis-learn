@@ -27,7 +27,7 @@
      2 properties， 通过resource url 指定需要加载的外部配置文件
      3 SqlSessionFactory 创建方法参数中传入参数
      从上到下，优先级增高覆盖已读取的同名属性。-->
-    <properties resource="dbconfig.properties">
+    <properties resource="dbconfig.properties" >
         <property name="org.apache.ibatis.parsing.PropertyParser.enable-default-value" value="true"/> <!-- 启用默认值特性 -->
         <property name="org.apache.ibatis.parsing.PropertyParser.default-value-separator" value="?:"/> <!-- 修改默认值的分隔符 -->
     </properties>
@@ -73,28 +73,28 @@
     <!--指定事务,数据源-->
     <!--实际开发中我们使用Spring管理数据源，并进行事务控制的配置来覆盖上述配置。-->
     <!--default 用来指定当前使用的环境<environment>-->
-    <environments default="dev">
-        <environment id="dev">
+    <environments default="oracle">
+        <environment id="mysql">
             <!-- 事务管理:JDBC | MANAGED | 自定义-->
             <transactionManager type="JDBC"/>
             <!--数据源:UNPOOLED | POOLED | JNDI | 自定义-->
             <dataSource type="POOLED">
-                <property name="driver" value="${jdbc.driver}"/>
-                <property name="url" value="${jdbc.url}"/>
+                <property name="driver" value="${mysql.driver}"/>
+                <property name="url" value="${mysql.url}"/>
 <!--                jdbc.username:system system 为默认值，需要通过配置开启这一特性-->
-                <property name="username" value="${jdbc.username}"/>
-                <property name="password" value="${jdbc.password}"/>
+                <property name="username" value="${mysql.username}"/>
+                <property name="password" value="${mysql.password}"/>
             </dataSource>
         </environment>
-        <environment id="prod">
+        <environment id="oracle">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
-                <property name="driver" value="${jdbc.driver}"/>
-                <property name="url" value="${jdbc.url}"/>
-                <property name="username" value="${jdbc.username}"/>
-                <property name="password" value="${jdbc.password}"/>
+                <property name="driver" value="${oracle.driver}"/>
+                <property name="url" value="${oracle.url}"/>
+                <property name="username" value="${oracle.username}"/>
+                <property name="password" value="${oracle.password}"/>
 <!--                此外可以配置连接池的相关属性-->
-                <property name="poolMaximumActiveConnections " value="10"/>
+                <!--<property name="poolMaximumActiveConnections " value="10"/>-->
             </dataSource>
         </environment>
     </environments>

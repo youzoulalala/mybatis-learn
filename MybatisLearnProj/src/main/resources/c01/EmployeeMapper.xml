@@ -51,6 +51,12 @@
         where id = #{id}
     </select>
 
+    <select id="getEmpById" resultMap="empResMap" databaseId="oracle" useCache="true">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
     <select id="getEmpByDeptId" resultType="emp">
         select id, last_name, email, gender
         from employee

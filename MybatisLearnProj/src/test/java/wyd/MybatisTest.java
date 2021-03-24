@@ -41,12 +41,11 @@ public class MybatisTest {
 
     private SqlSessionFactory getSqlSessionFactory(String mybatisConf) throws IOException {
         //都是以一个 SqlSessionFactory 的实例为核心的
-//        String mybatisConf = "mybatis-config.xml";
         //Mybatis所提供的工具类，内置大量实用方法，可以类路径或其它位置加载资源文件
         final InputStream resourceAsStream = Resources.getResourceAsStream(mybatisConf);
         final SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();//方法作用域
-        Properties properties = new Properties();
-        properties.load(Resources.getResourceAsStream("dbconfig.properties"));
+//        Properties properties = new Properties();
+//        properties.load(Resources.getResourceAsStream("dbconfig.properties"));
 //        final SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(resourceAsStream, properties);//应用作用域(单例)
         final SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(resourceAsStream);//应用作用域(单例)
         return sqlSessionFactory;
@@ -79,9 +78,8 @@ public class MybatisTest {
 
     @Test
     public void test01() throws IOException {
-        //"jdbcConnection.properties"
-        String mybatisConf = "jdbcConnection.properties";
-        final SqlSessionFactory sqlSessionFactory = getSqlSessionFactoryByJava(mybatisConf);
+        String mybatisConf = "mybatis-config.xml";
+        final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConf);
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {//非线程安全,每次使用时获取（请求或方法作用域）（每次收到 HTTP 请求，就可以打开一个 SqlSession，返回一个响应后，就关闭它）
             final EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);//方法作用域
             System.out.println(mapper);
@@ -130,7 +128,7 @@ public class MybatisTest {
         final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConfURL);
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);//获取代理对象
-            Employee e = new Employee(null, "郭德纲", "gdg@123.com", "男");
+            Employee e = new Employee(null, "郭德纲", "gdg@123.com", "男", null);
             boolean res = employeeMapper.addEmp(e);
             sqlSession.commit();
             System.out.println(e);
@@ -183,8 +181,8 @@ public class MybatisTest {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);//获取代理对象
             List<Employee> employeeList = new ArrayList<>();
-            employeeList.add(new Employee("1", null, null, null));
-            employeeList.add(new Employee("2", null, null, null));
+            employeeList.add(new Employee("1", null, null, null, null));
+            employeeList.add(new Employee("2", null, null, null, null));
             Employee e = employeeMapper.getEmpByList(employeeList, "employee");
             sqlSession.commit();
             System.out.println(e);
