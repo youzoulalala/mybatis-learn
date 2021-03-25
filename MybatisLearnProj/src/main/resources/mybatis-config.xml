@@ -35,15 +35,21 @@
     <!-- 运行时行为设置
    mybatis 提供了多种功能的设置，每个设置都有各自的含义，取值范围，默认值
    更多设置：https://mybatis.org/mybatis-3/zh/configuration.html#settings-->
+    <!--
+    即使默认，仍然指定，避免版本变动带来的影响
+    -->
     <settings>
+        <!--开启驼峰-->
         <setting name="mapUnderscoreToCamelCase" value="true"/>
-        <setting name="jdbcTypeForNull" value="NULL"/>
-<!--
-    即使默认，仍然指定
--->
+        <!--对 NULL 的处理方式-->
+<!--        <setting name="jdbcTypeForNull" value="NULL"/>-->
+        <!--懒加载-->
         <setting name="lazyLoadingEnabled" value="true"/>
         <setting name="aggressiveLazyLoading" value="false"/>
+        <!--缓存-->
         <setting name="cacheEnabled" value="true"/>
+        <!--日志-->
+        <setting name="logImpl" value="LOG4J" />
     </settings>
 
     <!--别名不区分大小写-->
@@ -119,6 +125,7 @@
     <!-- 使用完全限定资源定位符（URL） -->
     <mappers>
         <mapper resource="c01/EmployeeMapper.xml"/>
+        <mapper resource="c01/DeptMapper.xml"/>
 <!--        <mapper url="file:///C:/Users/62927/Desktop/MybatisLearm/src/main/resources/c01/EmployeeMapper.xml"></mapper>-->
 <!--        要求接口与xml映射文件在同一包下-->
 <!--        <mapper class="wyd.mapper.EmployeeMapper"></mapper>-->
