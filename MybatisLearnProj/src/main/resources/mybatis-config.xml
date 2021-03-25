@@ -46,7 +46,7 @@
         <!--懒加载-->
         <setting name="lazyLoadingEnabled" value="true"/>
         <setting name="aggressiveLazyLoading" value="false"/>
-        <!--缓存-->
+        <!--缓存 全局开关-->
         <setting name="cacheEnabled" value="true"/>
         <!--日志-->
         <setting name="logImpl" value="LOG4J" />
@@ -79,7 +79,7 @@
     <!--指定事务,数据源-->
     <!--实际开发中我们使用Spring管理数据源，并进行事务控制的配置来覆盖上述配置。-->
     <!--default 用来指定当前使用的环境<environment>-->
-    <environments default="oracle">
+    <environments default="mysql">
         <environment id="mysql">
             <!-- 事务管理:JDBC | MANAGED | 自定义-->
             <transactionManager type="JDBC"/>

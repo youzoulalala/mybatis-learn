@@ -3,6 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="wyd.mapper.DeptMapper">
+    <cache-ref namespace="wyd.mapper.EmployeeMapper"/>
     <select id="getDepartmentById" resultType="wyd.model.Department">
         select
                 d.id id,

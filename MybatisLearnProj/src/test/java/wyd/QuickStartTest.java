@@ -85,7 +85,7 @@ public class QuickStartTest {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {//非线程安全,每次使用时获取（请求或方法作用域）（每次收到 HTTP 请求，就可以打开一个 SqlSession，返回一个响应后，就关闭它）
             EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);//方法作用域
             System.out.println(mapper);//mybatis 提供一个代理对象（将接口和xml进行绑定）
-            Employee e = mapper.getEmpById(1);
+            Employee e = mapper.getEmpById("1");
             System.out.println(e);
         }
     }

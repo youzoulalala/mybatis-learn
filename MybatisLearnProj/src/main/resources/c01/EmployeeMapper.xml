@@ -7,12 +7,20 @@
 <!--
     eviction: 回收策略
     flushInterval: 缓存刷新间隔,默认不清空(ms)
-    readOnly: 是否只读,true 返回缓存中的对象, false 序列化新对象
+    readOnly: 是否只读,true 返回缓存中的对象(速度快), false 序列化新对象
     size: 存放多少元素
-    type: 指定自定义缓存的全类名
+    type: 指定自定义缓存的全类名（使用第三方缓存）
 -->
 <!--    <cache eviction="" readOnly="" size="" type="" flushInterval="" blocking=""></cache>-->
 <!--    <cache-ref namespace="和某个名称空间的二级缓存配置一致"></cache-ref>-->
+    <cache eviction="LRU" flushInterval="50000" readOnly="true" type="org.mybatis.caches.ehcache.EhcacheCache">
+        <property name="timeToIdleSeconds" value="3600"/><!--1 hour-->
+        <property name="timeToLiveSeconds" value="3600"/><!--1 hour-->
+        <property name="maxEntriesLocalHeap" value="1000"/>
+        <property name="maxEntriesLocalDisk" value="10000000"/>
+        <property name="memoryStoreEvictionPolicy" value="LRU"/>
+    </cache>
+
 
     <resultMap id="empResMap" type="emp">
         <!--主键列（底层有优化）-->
@@ -30,7 +38,7 @@
         resultType：返回值类型
         #{id}：从传递过来的参数中取出id值
     -->
-    <select id="getEmpById" resultMap="empResMap" databaseId="mysql" useCache="true">
+    <select id="getEmpById" resultMap="empResMap" databaseId="mysql" useCache="true" flushCache="false"><!--默认 flushCache="false"-->
         select id, last_name, email, gender
         from employee
         where id = #{id}

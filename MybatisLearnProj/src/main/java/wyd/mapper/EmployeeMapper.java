@@ -18,7 +18,7 @@ public interface EmployeeMapper {
             "        where id = #{id}")
     Employee getEmpById(Integer id);  */
 
-    Employee getEmpById(Integer id);
+    Employee getEmpById(String id);
 
     List<Employee> getEmpByDeptId(Integer did);
 
