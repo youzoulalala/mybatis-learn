@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!--名称空间，接口绑定-->
+<mapper namespace="wyd.mapper.EmployeeMapper">
+    <!--二级缓存-->
+<!--
+    eviction: 回收策略
+    flushInterval: 缓存刷新间隔,默认不清空(ms)
+    readOnly: 是否只读,true 返回缓存中的对象, false 序列化新对象
+    size: 存放多少元素
+    type: 指定自定义缓存的全类名
+-->
+<!--    <cache eviction="" readOnly="" size="" type="" flushInterval="" blocking=""></cache>-->
+<!--    <cache-ref namespace="和某个名称空间的二级缓存配置一致"></cache-ref>-->
+
+    <!--
+        namespace:名称空间;指定为接口的全类名
+        id：唯一标识,指定为方法名
+        resultType：返回值类型
+        #{id}：从传递过来的参数中取出id值
+     -->
+
+<!--
+    定义 resultMap
+-->
+    <resultMap id="empResMap" type="emp">
+<!--        主键列（底层有优化）-->
+<!--        colume 指定列-->
+<!--        javaBean 属性-->
+        <id column="id" property="id"></id>
+<!--        其他普通列-->
+        <result column="last_name" property="lastName"></result>
+        <result column="email" property="email"></result>
+        <result column="gender" property="gender"></result>
+<!--        其他不指定的列，自动封装（列名和字段名一致）-->
+    </resultMap>
+
+    <!-- ==========oracle版本的sql=========
+     <select id="getEmpById" resultType="EMP" databaseId="oracle">
+         select id, last_name, email, gender
+         from employee
+         where id = #{id}
+     </select>-->
+    <select id="getEmpById" resultMap="empResMap" databaseId="mysql" useCache="true">
+        select id, last_name, email, gender
+        from employee
+        where id = #{id}
+    </select>
+
+    <select id="getEmpById" resultMap="empResMap" databaseId="oracle" useCache="true">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <select id="getEmpByDeptId" resultType="emp">
+        select id, last_name, email, gender
+        from employee
+        where d_id = #{did}
+    </select>
+
+    <update id="updateEmp" flushCache="true">
+    </update>
+
+    <!--=======获取自增主键值==========
+    useGeneratedKeys="true" keyProperty="id"
+    keySelect 标签-->
+    <insert id="addEmp" >
+        INSERT INTO employee  (id, last_name, email, gender)
+        VALUES(UUID(), #{lastName},#{email},#{gender})
+    </insert>
+
+    <delete id="deleteEmp">
+    </delete>
+
+    <!--多个参数会被封装为一个map
+        key: param1, param2
+        value: 参数值1, 参数值2-->
+<!-- 多个参数而未起别名则报错：
+  org.apache.ibatis.binding.BindingException: Parameter 'id' not found. Available parameters are [0, 1, param1, param2]
+  -->
+    <select id="getEmpByIdAndLastName" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+        from employee
+<!--        where id = #{0} and last_name = #{1}-->
+<!--        where id = #{param1} and last_name = #{param2}-->
+        where id = #{id} and last_name = #{lastName}
+    </select>
+
+    <select id="getEmpByMap" resultType="wyd.model.Employee">
+        select id, last_name, email, genderj
+        from employee
+        where id = #{id} and last_name = #{lastName}
+    </select>
+
+    <!--            $ 直接拼接在SQL语句中（分表等特殊情况使用）
+                # 预编译的方式，防止SQL注入（查询条件使用）
+                eg: select * from ${year}_salary where name = #{empName}
+-->
+    <!-- #{} 的进一步用法，javeType, jdbcType, mode(存储过程), numericScale
+                            resultMap, typeHandler, jdbcTypeName, expression（保留字段）
+          jdbcType 特殊情况下需要指定，例如数据为null，有些数据库不能识别mybatis对null的处理（映射为NULL），比如oracle
+           jdbcType OTHER, mybatis 对所有null映射为 jdbcType OTHER
+    -->
+    <select id="getEmpByDTO" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+        from employee
+        limit (#{page} - 1) * #{size}, #{size}
+    </select>
+
+    <select id="getEmpByList" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+
+        from ${tableName}
+        where id = #{employeeList[0].id}
+    </select>
+
+    <select id="getEmpTotal" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+        from employee
+    </select>
+
+<!--
+    mapper接口返回集合，resultType 为返回集合中的对象类型
+-->
+    <select id="getEmpLike" resultType="wyd.model.Employee">
+        select id, last_name, email, gender
+        from employee
+        where last_name like #{likeName}
+    </select>
+
+    <select id="getEmpByIdReturnMap" resultType="java.util.Map">
+        select * from employee where id = #{id}
+    </select>
+
+<!--    <select id="getEmpByLikeNameReturnMap" resultType="java.util.Map">-->
+    <select id="getEmpByLikeNameReturnMap" resultType="emp">
+<!--        bind  使用OGNL表达式创建一个变量-->
+        <bind name="_likeName" value="'%' + likeName + '%'"/>
+        select id, last_name, email, gender
+        from employee
+        where last_name like #{_likeName}
+    </select>
+
+<!--     级联属性封装结果集-->
+    <resultMap id="empDeptMap" type="wyd.model.Employee">
+        <id column="id" property="id"></id>
+        <result column="last_name" property="lastName"></result>
+        <result column="email" property="email"></result>
+        <result column="gender" property="gender"></result>
+        <result column="did" property="dept.id"></result>
+        <result column="deptName" property="dept.deptName"></result>
+    </resultMap>
+
+    <resultMap id="empDeptMap2" type="wyd.model.Employee">
+        <id column="id" property="id"></id>
+        <result column="last_name" property="lastName"></result>
+        <result column="email" property="email"></result>
+        <result column="gender" property="gender"></result>
+<!--        指定级联的 JavaBean-->
+        <association property="dept" javaType="wyd.model.Department">
+            <id column="did" property="id"></id>
+            <result column="deprName" property="deptName"></result>
+        </association>
+    </resultMap>
+
+<!--    不能使用resultType, 需要封装dept,复杂对象-->
+    <select id="getEmpAndDeptById" resultMap="empDeptMap">
+        select
+            e.id id,
+            e.last_name last_name,
+            e.email email,
+            e.gender gender,
+            d.id did,
+            d.dept_name deptName
+        from employee e left join tbl_dept d on e.d_id = d.id where e.id = #{id,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getDepartmentById" resultType="wyd.model.Department">
+        select
+                d.id did,
+                d.dept_name deptName
+        from tbl_department d
+        where d.id = #{id}
+    </select>
+
+    <!--    使用 association 进行分步查询-->
+<!--
+    延迟加载：部门信息仅在需要使用时查询
+    分步基础上加上配置
+-->
+    <resultMap id="empByStep" type="wyd.model.Employee">
+        <id column="id" property="id"></id>
+        <result column="last_name" property="lastName"></result>
+        <result column="email" property="email"></result>
+        <result column="gender" property="gender"></result>
+<!--
+        property 指定级联对象
+        javaType 指定级联对象的类型
+        select 指定级联对象是通过调用哪个 select 来获取的
+        column 指定将哪一列传递给select的方法参数
+-->
+        <association property="dept" javaType="wyd.model.Department"
+                     select="getDepartmentById" column="d_id"></association>
+    </resultMap>
+    <select id="getEmpByStep" resultMap="empByStep">
+        select * from employee where id = #{id}
+    </select>
+
+<!--
+    查询部门，以及该部门下的所有员工信息
+-->
+    <resultMap id="deptMap" type="wyd.model.Department">
+        <id column="did" property="id"></id>
+        <result column="deptName" property="deptName"></result>
+        <collection property="employeeList" ofType="wyd.model.Employee">
+            <id column="id" property="id"></id>
+            <result column="last_name" property="lastName"></result>
+            <result column="email" property="email"></result>
+            <result column="gender" property="gender"></result>
+        </collection>
+    </resultMap>
+    <select id="getDepartmentByIdPlus" resultMap="deptMap">
+        SELECT
+                e.id id,
+                e.last_name last_name,
+                e.email email,
+                e.gender gender,
+                d.id did,
+                d.dept_name deptName
+        FROM
+                tbl_dept d
+                LEFT JOIN employee e ON e.d_id = d.id
+        WHERE d.id = #{id,jdbcType=VARCHAR}
+    </select>
+
+
+    <resultMap id="deptMapStep" type="wyd.model.Department">
+        <id column="did" property="id"></id>
+        <result column="deptName" property="deptName"></result>
+<!--
+    column, 传递多列值，则需要封装为map
+    fetchType, 取值：lazy(延迟)，eager(立即)
+-->
+        <collection property="employeeList" ofType="wyd.model.Employee"
+                    select="getEmpByDeptId" column="{did=did}" fetchType="lazy"></collection>
+    </resultMap>
+
+    <select id="getDepartmentByIdStep" resultMap="deptMapStep">
+        SELECT
+                d.id did,
+                d.dept_name deptName
+        FROM
+                tbl_dept d
+        WHERE d.id = #{id,jdbcType=VARCHAR}
+    </select>
+<!--
+    鉴别器： discriminator
+    用于根据某列值来改变封装行为
+-->
+    <resultMap id="empByStep2" type="wyd.model.Employee">
+        <id column="id" property="id"></id>
+        <result column="last_name" property="lastName"></result>
+        <result column="email" property="email"></result>
+        <result column="gender" property="gender"></result>
+        <discriminator javaType="String" column="gender">
+            <case value="男"  resultType="emp">
+                <result column="last_name" property="email"></result>
+            </case>
+            <case value="女" resultType="emp">
+                <association property="dept" javaType="wyd.model.Department"
+                             select="getDepartmentById" column="d_id"></association>
+            </case>
+        </discriminator>
+    </resultMap>
+
+
+
+    <!--
+        动态sql标签：
+        sql
+    -->
+    <select id="getEmpByCondition" resultType="emp">
+        SELECT
+                id,
+                last_name,
+                email,
+                gender
+        FROM
+                employee
+        <where>
+<!--            OGNL表达式-->
+<!--            遇见特殊符号应当使用转移字符，W3C-->
+            <if test="id!=null">
+                and id = #{id}
+            </if>
+            <if test="lastName!=null &amp;&amp; lastName != ''">
+                and last_name = #{lastName}
+            </if>
+            <if test="email!=null and email.trim() != &quot;&quot;">
+                and email = #{email}
+            </if>
+<!--            "0" == 0 -->
+            <if test="gender == '男'.toString() or gender == '女'.toString()">
+                and gender = #{gender}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getEmpByCondition2" resultType="emp">
+        SELECT
+        id,
+        last_name,
+        email,
+        gender
+        FROM
+        employee
+<!--
+    suffixOverrides:后缀覆写
+    suffix:后缀
+    prefixOverrides:前缀覆写
+    prefix:前缀
+-->
+        <trim suffixOverrides="and"  suffix="" prefixOverrides="and" prefix="where ">
+            <if test="id!=null">
+                and id = #{id}
+            </if>
+            <if test="lastName!=null &amp;&amp; lastName != ''">
+                and last_name = #{lastName}
+            </if>
+            <if test="email!=null and email.trim() != &quot;&quot;">
+                and email = #{email}
+            </if>
+            <if test="gender == '男'.toString() or gender == '女'.toString()">
+                and gender = #{gender}
+            </if>
+        </trim>
+    </select>
+
+    <select id="getEmpByCondition3" resultType="emp">
+        SELECT
+        id,
+        last_name,
+        email,
+        gender
+        FROM
+        employee
+        <where>
+<!--
+    choose标签：只会进入第一个符合条件的分支，类似switch-case
+-->
+        <choose>
+            <when test="id != null">
+                and id = #{id}
+            </when>
+            <when test="lastName!=null &amp;&amp; lastName != ''">
+                and last_name = #{lastName}
+            </when>
+            <when test="email!=null and email.trim() != &quot;&quot;">
+                and email = #{email}
+            </when>
+            <when test="gender == '男'.toString() or gender == '女'.toString()">
+                and gender = #{gender}
+            </when>
+            <otherwise>
+                and gender = '女'
+            </otherwise>
+        </choose>
+        </where>
+    </select>
+
+    <!--
+        set 标签：用于更新语句，去除最后的","
+    -->
+<!--
+    foreach 标签：用于遍历集合
+    collection
+    item
+    separator
+    begin
+    close
+    index
+-->
+
+<!--
+    批量保存
+-->
+<!--    mysql 批量保存，支持values(),(),()-->
+<!--    <insert id="addEmps">-->
+<!--        insert into employee (id, last_name, email, gender, d_id) values-->
+<!--        <foreach collection="emps" item="emp" separator=",">-->
+<!--            (#{emp.id}, #{emp.lastName}, #{emp.email}, #{emp.gender}, #{emp.dept.id})-->
+<!--        </foreach>-->
+<!--    </insert>-->
+
+<!--
+    oracle 批量保存
+    1 多个sql语句包括begin-end中
+    2 insert select 中间表
+-->
+<!--    begin-end-->
+    <insert id="addEmps">
+        <foreach collection="emps" item="emp" open="begin" close="end;">
+            insert into employee (id, last_name, email, gender, d_id)
+            values(#{emp.id}, #{emp.lastName}, #{emp.email}, #{emp.gender}, #{emp.dept.id});
+        </foreach>
+    </insert>
+<!--    insert-select-->
+    <insert id="addEmps2">
+        insert into employee (
+        <include refid="empfield">
+            <property name="mygender" value="男"/>
+        </include>
+        )
+        <foreach collection="emps" item="emp" separator=" union"
+                 open="select id, last_name, email, gender, d_id from (" close=")">
+            select #{emp.id} id, #{emp.lastName} last_name, #{emp.email} email, #{emp.gender} gender, #{emp.dept.id} d_id from dual
+        </foreach>
+    </insert>
+
+<!--
+    内置参数: _parameter, _databaseId
+    _parameter: 代表整个参数,
+        单个参数:_paramter就是这个参数
+        多个参数:封装为一个map
+    _databaseId: 如果配置了databaseIdProvider, _databaseId是数据库别名,用于多数据库
+-->
+
+<!--
+    bind: 可以将OGNL表达式的值绑定到一个变量中,方便后来引用这个变量的值
+-->
+
+<!--
+    sql - include: 复用sql语句
+-->
+<sql id="empfield">
+    id, last_name, email, #{mygender}, d_id
+</sql>
+
+</mapper>
