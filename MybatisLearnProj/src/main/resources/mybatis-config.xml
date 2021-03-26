@@ -124,8 +124,10 @@
     <!-- 使用相对于类路径的资源引用 -->
     <!-- 使用完全限定资源定位符（URL） -->
     <mappers>
-        <mapper resource="c01/EmployeeMapper.xml"/>
-        <mapper resource="c01/DeptMapper.xml"/>
+<!--        <mapper resource="c01/EmployeeMapper.xml"/>-->
+<!--        <mapper resource="c01/DeptMapper.xml"/>-->
+        <mapper resource="mbg/EmployeeMapper.xml"/>
+        <mapper resource="mbg/DepartmentMapper.xml"/>
 <!--        <mapper url="file:///C:/Users/62927/Desktop/MybatisLearm/src/main/resources/c01/EmployeeMapper.xml"></mapper>-->
 <!--        要求接口与xml映射文件在同一包下-->
 <!--        <mapper class="wyd.mapper.EmployeeMapper"></mapper>-->
