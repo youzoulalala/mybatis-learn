@@ -7,6 +7,8 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.defaults.DefaultSqlSession;
+import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.Test;
@@ -36,7 +38,13 @@ public class QuickStartTest {
         4、写代码
             4.1 根据全局配置文件创建 sqlSessionFactory
             4.2 根据 sqlSessionFactory 获取 SqlSession
-            4.3 使用唯一标志（namespace.id）来告诉MyBatis执行哪个sql
+            4.3 获取接口的代理对象
+            4.4 执行CRUD方法
+     */
+
+    /*
+        4.1 根据全局配置文件创建 sqlSessionFactory
+
      */
 
     private SqlSessionFactory getSqlSessionFactory(String mybatisConf) throws IOException {
@@ -82,6 +90,8 @@ public class QuickStartTest {
         String mybatisConf = "mybatis-config.xml";//java, resource 为类路径的根
         final SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(mybatisConf);
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {//非线程安全,每次使用时获取（请求或方法作用域）（每次收到 HTTP 请求，就可以打开一个 SqlSession，返回一个响应后，就关闭它）
+//            DefaultSqlSession
+//            DefaultSqlSessionFactory
             EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);//方法作用域
             System.out.println(mapper);//mybatis 提供一个代理对象（将接口和xml进行绑定）
             Employee e = mapper.getEmpById("1");
